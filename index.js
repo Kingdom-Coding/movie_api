@@ -1,6 +1,16 @@
+//modules imported
 const express = require("express");
 const app = express();
+const morgan = require("morgan");
+const fs = require("fs");
+const path = require("path");
 
+//global variables
+//setting up txt file to connect with the morgan logger
+const accessLogStream = fs.createWriteStream(path.join(__dirname, "log.txt"), {
+  flags: "a",
+});
+//movie data
 const top10Movies = [
   {
     name: "The Dark Knight",
@@ -120,4 +130,81 @@ const top10Movies = [
     ],
     director: "Prachya Pinkaew",
   },
+  {
+    name: "The Avengers",
+    "release date": "May 04, 2012",
+    genres: ["action", "science fiction", "adventure"],
+    "top billed castors": [
+      "Robert Downey Jr.",
+      "Chris Evans",
+      "Mark Ruffalo",
+      "Chris Hemsworth",
+      "Scarlett Johansson",
+      "Jeremy Renner",
+      "Tom Hiddleston",
+      "Clark Gregg",
+      "Cobie Smulders",
+    ],
+    director: "Joss Whedon",
+  },
+  {
+    name: "Pirates of the Caribbean: The Curse of the Black Pearl",
+    "release date": "July 9, 2003",
+    genres: ["action", "fantasy", "adventure"],
+    "top billed castors": [
+      "Johnny Depp",
+      "Orlando Bloom",
+      "Keira Knightley",
+      "Geoffrey Rush",
+      "Jack Davenport",
+      "Jonathan Pryce",
+      "Lee Arenberg",
+      "Mackenzie Crook",
+      "Damian O'Hare",
+    ],
+    director: "Gore Verbinski",
+  },
+  {
+    name: "Transformers",
+    "release date": "July 2, 2007",
+    genres: ["action", "science fiction", "adventure"],
+    "top billed castors": [
+      "Shia LaBeouf",
+      "Megan Fox",
+      "Mark Ryan",
+      "Peter Cullen",
+      "Hugo Weaving",
+      "Josh Duhamel",
+      "Tyrese Gibson",
+      "Charlie Adler",
+      "Rachael Taylor",
+    ],
+    director: "Michael Bay",
+  },
 ];
+
+//setting up the morgan logger
+app.use(morgan("combined", { stream: accessLogStream }));
+
+//routes
+app.get("/movies", (req, res) => {
+  res.json(top10Movies);
+});
+
+app.get("/", (req, res) => {
+  res.send("you reached the home page");
+});
+
+//getting the documentation file and all static files in public folder
+app.use(express.static("public"));
+
+//error handling
+app.use((err, req, res, next) => {
+  console.log(err.stack);
+  res.status(500).send("there's a bug somewhere");
+});
+
+//setting the port to host the server on
+app.listen(5800, () => {
+  console.log("this server is running on port 5800");
+});
